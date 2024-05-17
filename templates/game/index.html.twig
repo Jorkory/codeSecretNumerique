@@ -3,5 +3,8 @@
 {% block title %}Hello GameController!{% endblock %}
 
 {% block body %}
-{{ component('GameEnterCode') }}
+    <div class="flex w-full max-w-[1280px] px-7">
+        {{ component('GameEnterCode') }}
+        {{ component('GameDisplay', {'codeToFind' : codeToFind}) }}
+    </div>
 {% endblock %}

@@ -5,12 +5,14 @@ namespace App\Twig\Components;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
 use Symfony\UX\LiveComponent\Attribute\LiveAction;
 use Symfony\UX\LiveComponent\Attribute\LiveArg;
+use Symfony\UX\LiveComponent\ComponentToolsTrait;
 use Symfony\UX\LiveComponent\DefaultActionTrait;
 
 #[AsLiveComponent]
 class GameEnterCode
 {
     use DefaultActionTrait;
+    use ComponentToolsTrait;
 
     private int $codeGenerated = 45780;
 
@@ -24,10 +26,16 @@ class GameEnterCode
     }
 
     #[LiveAction]
-    public function keypadClick(#[LiveArg('code')] string $code, #[LiveArg('number')] string $key): void
+    public function keypadClick(#[LiveArg('code')] string $code, #[LiveArg('number')] string $key, GameDisplay $gameDisplay): void
     {
         if ($key === 'C') {
-            $this->code = '';
+            return;
+        }
+
+        if ($key === 'OK') {
+            $this->emit('handleKeypadClick', [
+                'code' => $code,
+            ]);
             return;
         }
 
