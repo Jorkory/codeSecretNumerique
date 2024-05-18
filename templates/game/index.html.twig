@@ -4,7 +4,7 @@
 
 {% block body %}
     <div class="flex w-full max-w-[1280px] px-7">
-        {{ component('GameEnterCode') }}
-        {{ component('GameDisplay', {'codeToFind' : codeToFind}) }}
+        {{ component('GameEnterCode', {'codeToDisplay': codeToDisplay}) }}
+        {{ component('GameDisplay', {'codeToFind' : codeToFind, 'journal' : journal}) }}
     </div>
 {% endblock %}

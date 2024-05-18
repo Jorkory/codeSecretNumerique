@@ -2,9 +2,12 @@
 
 namespace App\Twig\Components;
 
+use App\Service\CodeSecretService;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
 use Symfony\UX\LiveComponent\Attribute\LiveAction;
 use Symfony\UX\LiveComponent\Attribute\LiveArg;
+use Symfony\UX\LiveComponent\Attribute\LiveProp;
 use Symfony\UX\LiveComponent\ComponentToolsTrait;
 use Symfony\UX\LiveComponent\DefaultActionTrait;
 
@@ -14,36 +17,25 @@ class GameEnterCode
     use DefaultActionTrait;
     use ComponentToolsTrait;
 
-    private int $codeGenerated = 45780;
-
-    private const LENGTH = 5;
-
-    public string $code = '';
-
-    public function getCode(): array
-    {
-        return str_split(str_pad($this->code, self::LENGTH, '-', STR_PAD_RIGHT));
-    }
+    #[LiveProp]
+    public array $codeToDisplay;
 
     #[LiveAction]
-    public function keypadClick(#[LiveArg('code')] string $code, #[LiveArg('number')] string $key, GameDisplay $gameDisplay): void
+    public function keypadClick(#[LiveArg('number')] string $key, GameDisplay $gameDisplay, Request $request): void
     {
-        if ($key === 'C') {
-            return;
-        }
+        $codeSecretService = new CodeSecretService($request);
 
-        if ($key === 'OK') {
+        if ($key === 'C' ) {
+            $codeSecretService->clearCodeEntered();
+        } else if ($key === 'OK') {
+            $codeSecretService->checkCodeEntered();
             $this->emit('handleKeypadClick', [
-                'code' => $code,
+                'journal' => $codeSecretService->getJournal()
             ]);
-            return;
+        } else {
+            $codeSecretService->keypadAddNumber($key);
         }
 
-        if(strlen($code) >= self::LENGTH) {
-            $this->code = $code;
-            return;
-        }
-
-        $this->code = $code . $key;
+        $this->codeToDisplay = $codeSecretService->getCodeToDisplay();
     }
 }

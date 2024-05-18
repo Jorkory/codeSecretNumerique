@@ -1,7 +1,7 @@
 <div {{ attributes }} class="w-[300px] m-auto bg-zinc-600 pt-4 pb-6 rounded-xl shadow-custom">
 
     <div class="p-2 m-2 bg-white flex gap-2 justify-center bg-gradient-to-b from-zinc-900 to-zinc-800 rounded-lg">
-        {% for char in this.getCode %}
+        {% for char in codeToDisplay %}
             <div class="w-[20px] text-3xl text-green-400">{{ char }}</div>
         {% endfor %}
     </div>
@@ -13,7 +13,6 @@
                 data-action="live#action"
                 data-live-action-param="keypadClick"
 
-                data-live-code-param="{{ code }}"
                 data-live-number-param="{{ btn }}"
 
         >{{ btn }}</button>
