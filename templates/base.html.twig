@@ -12,7 +12,15 @@
             {% block importmap %}{{ importmap('app') }}{% endblock %}
         {% endblock %}
     </head>
-    <body>
-        {% block body %}{% endblock %}
+    <body class="flex flex-col min-h-screen">
+        <header class="bg-gray-700 p-2">
+            <div class="w-[240px] m-auto"><a href="#" aria-label="Code Secret Numérique"> {{ ux_icon('header:logo') }} </a></div>
+        </header>
+        <main class="flex-1">
+            {% block body %}{% endblock %}
+        </main>
+        <footer class="bg-gray-700 p-4">
+            <p class="text-white font-light text-center">Dev by <a href="https://www.linkedin.com/in/jorislamaque" target="_blank" class="underline">Joris Lamaque</a> - 2024 - Made with Symfony <a href="https://symfony.com" aria-label="Symfony" target="_blank">{{ ux_icon('symfony', {class: 'h-8 inline'}) }}</a></p>
+        </footer>
     </body>
 </html>
