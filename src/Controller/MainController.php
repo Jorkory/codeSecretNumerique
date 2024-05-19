@@ -22,14 +22,14 @@ class MainController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $codeLength = $newGame->getCodeLength();
             $difficulty = $newGame->getDifficulty();
-            $request->getSession()->set('newGame', ['difficulty' => $difficulty ,'codeLength' => $codeLength]);
+            $request->getSession()->set('newGame', ['newGame' => true, 'difficulty' => $difficulty ,'codeLength' => $codeLength]);
 
             return $this->redirectToRoute('app_game');
         }
 
         return $this->render('main/index.html.twig', [
             'controller_name' => 'MainController',
-            'form' => $form,
+            'form' => $form->createView(),
         ]);
     }
 }

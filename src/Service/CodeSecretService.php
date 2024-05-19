@@ -13,19 +13,25 @@ class CodeSecretService
     private array $journal = [];
 
 
-    public function __construct(Request $request, int $length = null)
+    public function __construct(Request $request)
     {
         $this->session = $request->getSession();
 
-        if ($this->session->has('game')) {
+        $difficulty = $this->session->get('newGame')['difficulty'];
+        $codeLength = $this->session->get('newGame')['codeLength'];
+        $newGame = $this->session->get('newGame')['newGame'];
+
+        if ($this->session->has('game') && !$newGame) {
             $game = $this->session->get('game');
             $this->codeToFind = $game['codeToFind'];
             $this->codeEntered = $game['codeEntered'];
             $this->journal = $game['journal'];
         } else {
-            $length ??= random_int(4,9);
+            $length = $codeLength ?? random_int(4,9);
             $this->codeToFind = (string) random_int((int) str_repeat(0, $length), (int) str_repeat(9, $length));
+            $this->codeToFind = str_pad($this->codeToFind, $length, '0', STR_PAD_LEFT);
             $this->save();
+            $this->session->set('newGame', ['newGame' => false, 'difficulty' => $difficulty ,'codeLength' => $codeLength]);
         }
     }
 
