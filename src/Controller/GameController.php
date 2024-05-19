@@ -14,6 +14,10 @@ class GameController extends AbstractController
     #[Route('/game', name: 'app_game', methods: ['GET', 'POST'])]
     public function index(Request $request): Response
     {
+        if (!$request->getSession()->has('newGame')) {
+            return $this->redirectToRoute('app_main');
+        }
+
         $codeSecretService = new CodeSecretService($request);
 
         $form = $this->createForm(NewGameBtnType::class);

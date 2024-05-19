@@ -11,6 +11,7 @@ class CodeSecretService
     private string $codeToFind;
     private string $codeEntered = '';
     private array $journal = [];
+    private bool $finished = false;
 
 
     public function __construct(Request $request)
@@ -26,6 +27,7 @@ class CodeSecretService
             $this->codeToFind = $game['codeToFind'];
             $this->codeEntered = $game['codeEntered'];
             $this->journal = $game['journal'];
+            $this->finished = $game['finished'];
         } else {
             $length = $codeLength ?? random_int(4,9);
             $this->codeToFind = (string) random_int((int) str_repeat(0, $length), (int) str_repeat(9, $length));
@@ -37,11 +39,13 @@ class CodeSecretService
 
     private function save(): void
     {
-        $this->session->set('game', ['codeToFind' => $this->codeToFind, 'codeEntered' => $this->codeEntered, 'journal' => $this->journal]);
+        $this->session->set('game', ['codeToFind' => $this->codeToFind, 'codeEntered' => $this->codeEntered, 'journal' => $this->journal, 'finished' => $this->finished]);
     }
 
     public function keypadAddNumber(string $key): void
     {
+        if ($this->finished) {return;}
+
         if(strlen($this->codeEntered) >= strlen($this->codeToFind) || !preg_match('/^[0-9]$/', $key)) {
             return;
         }
@@ -51,6 +55,8 @@ class CodeSecretService
 
     public function clearCodeEntered(): void
     {
+        if ($this->finished) {return;}
+
         $this->codeEntered = '';
         $this->save();
     }
@@ -67,6 +73,8 @@ class CodeSecretService
 
     public function checkCodeEntered(): void
     {
+        if ($this->finished) {return;}
+
         if (strlen($this->codeEntered) < strlen($this->codeToFind)) { return;}
 
         $newEntry = '';
@@ -85,7 +93,8 @@ class CodeSecretService
         $this->journal[] = '[' . date('H:i:s') . ']  ' . '<div class="code">' . $newEntry . '</div>';
 
         if ($this->codeEntered === $this->codeToFind) {
-            $this->journal[] = '<div class="win"> Vous avez gagné ! </div>';
+            $this->finished = true;
+            $this->journal[] = '<div class="win"> Bravo, vous avez trouvé le code secret ! </div>';
         }
 
         $this->save();

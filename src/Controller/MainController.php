@@ -14,6 +14,8 @@ class MainController extends AbstractController
     #[Route('/', name: 'app_main', methods: ['GET', 'POST'])]
     public function index(Request $request): Response
     {
+        $finished = $request->getSession()->get('game')['finished'] ?? true;
+
         $newGame = new NewGame();
         $form = $this->createForm(NewGameType::class, $newGame);
 
@@ -30,6 +32,7 @@ class MainController extends AbstractController
         return $this->render('main/index.html.twig', [
             'controller_name' => 'MainController',
             'form' => $form->createView(),
+            'finished' => $finished,
         ]);
     }
 }
