@@ -3,10 +3,8 @@
 {% block title %}Hello GameController!{% endblock %}
 
 {% block body %}
-    <section class="w-full max-w-[1280px] m-7">
-        <div class="flex p-7 border-solid border-[3px] border-white rounded-xl">
+    <section class="w-full max-w-[1280px] m-7 flex p-7 border-solid border-[3px] border-white rounded-xl">
             {{ component('GameEnterCode', {'codeToDisplay': codeToDisplay}) }}
             {{ component('GameDisplay', {'codeToFind' : codeToFind, 'journal' : journal}) }}
-        </div>
     </section>
 {% endblock %}
