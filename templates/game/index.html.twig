@@ -4,7 +4,8 @@
 
 {% block body %}
     <section class="w-full max-w-[1280px] m-7 p-7 border-solid border-[3px] border-white rounded-xl">
-        <div class="flex justify-center">
+        <div class="flex justify-center gap-3">
+            <a href="{{ path('app_main') }}" class="btn shadow-custom">Accueil</a>
             {{ form_start(form) }}
             {{ form_end(form) }}
         </div>

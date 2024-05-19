@@ -14,7 +14,7 @@
     </head>
     <body class="flex flex-col min-h-screen">
         <header class="bg-gray-700 p-2">
-            <div class="w-[240px] m-auto"><a href="#" aria-label="Code Secret Numérique"> {{ ux_icon('header:logo') }} </a></div>
+            <div class="w-[240px] m-auto"><a href="{{ path('app_main') }}" aria-label="Code Secret Numérique"> {{ ux_icon('header:logo') }} </a></div>
         </header>
         <main class="flex-1 flex justify-center items-center">
             {% block body %}{% endblock %}
