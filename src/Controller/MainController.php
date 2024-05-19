@@ -21,7 +21,8 @@ class MainController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $codeLength = $newGame->getCodeLength();
-            $request->getSession()->set('code_length', $codeLength);
+            $difficulty = $newGame->getDifficulty();
+            $request->getSession()->set('newGame', ['difficulty' => $difficulty ,'codeLength' => $codeLength]);
 
             return $this->redirectToRoute('app_game');
         }

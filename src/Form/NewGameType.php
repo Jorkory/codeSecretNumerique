@@ -12,6 +12,18 @@ class NewGameType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
+            ->add('difficulty', ChoiceType::class, [
+                'choices' => [
+                    'Normal' => 'normal',
+                    'Difficile' => 'hard'
+                ],
+                'expanded' => true,
+                'multiple' => false,
+                'data' => 'normal',
+                'choice_attr' => function ($choice, $key, $value) {
+                return ['class' => 'm-2'];
+                },
+            ])
             ->add('codeLength', ChoiceType::class, [
                 'choices' => [
                     'Aléatoire' => null,
@@ -22,7 +34,6 @@ class NewGameType extends AbstractType
                     '8' => 8,
                     '9' => 9,
                 ],
-                'label' => 'Longueur du code',
             ])
         ;
     }

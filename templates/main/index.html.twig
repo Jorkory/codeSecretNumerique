@@ -1,4 +1,5 @@
 {% extends 'base.html.twig' %}
+{% form_theme form 'tailwind_2_layout.html.twig' %}
 
 {% block title %}Hello MainController!{% endblock %}
 
@@ -7,14 +8,21 @@
         <h1 class="text-gray-700 text-2xl">Bienvenue sur le mini-jeu <strong>Code Secret Numérique</strong></h1>
         <div class="flex">
             <article class="bg-zinc-600 text-white p-4 rounded max-w-[500px] mt-8 ml-2">
-                <p>Il s'agit d'un mini-jeu où vous devez trouver le code secret.</p>
-                <p class="mt-4">Chaque fois que vous entrez un code, un message vous informe des chiffres bien placés et des chiffres présents mais mal placés dans le code secret.</p>
+                <p>Il s'agit d'un mini-jeu où vous devez trouver le code secret composé de 4 à 9 chiffres.</p>
+                <p class="mt-8 underline">Difficulté ( Normale ) :</p>
+                <p class="mt-2">À chaque tentative, vous recevrez des indications sur les chiffres correctement placés et les chiffres présents mais mal placés dans le code secret.</p>
+                <p class="mt-4 underline">Difficulté ( Difficile ) :</p>
+                <p class="mt-2">À chaque tentative, vous recevrez un seul nombre qui représente les chiffres correctement placés, suivi d'un autre nombre représentant les chiffres présents mais mal placés.</p>
                 <p class="text-end mt-8">À vous de trouver le code secret !</p>
             </article>
-            <div class="p-4 m-auto">
+            <div class="p-4 m-auto bg-gray-50 rounded">
+                <h2 class="text-center text-xl mb-4 font-bold">Nouvelle partie</h2>
                 {{ form_start(form) }}
-                {{ form_row(form.codeLength) }}
-                <button type="submit" class="btn">Démarrer</button>
+                {{ form_row(form.difficulty, {label: 'Difficulté :', label_class: 'underline'}) }}
+                {{ form_row(form.codeLength, {label: 'Longueur du code :', widget_class: 'm-2', label_class: 'underline'}) }}
+                <div class="w-full flex justify-center">
+                    <button type="submit" class="btn shadow-custom inline-block mt-4">Démarrer</button>
+                </div>
                 {{ form_end(form) }}
             </div>
         </div>
