@@ -5,10 +5,18 @@
 {% block body %}
     <section class="w-full max-w-[1280px] m-7 flex p-7 border-solid border-[3px] border-white rounded-xl flex-col">
         <h1 class="text-gray-700 text-2xl">Bienvenue sur le mini-jeu <strong>Code Secret Numérique</strong></h1>
-        <article class="bg-zinc-600 text-white p-4 rounded max-w-[500px] mt-8 ml-2">
-            <p>Il s'agit d'un mini-jeu où vous devez trouver le code secret.</p>
-            <p class="mt-4">Chaque fois que vous entrez un code, un message vous informe des chiffres bien placés et des chiffres présents mais mal placés dans le code secret.</p>
-            <p class="text-end mt-8">À vous de trouver le code secret !</p>
-        </article>
+        <div class="flex">
+            <article class="bg-zinc-600 text-white p-4 rounded max-w-[500px] mt-8 ml-2">
+                <p>Il s'agit d'un mini-jeu où vous devez trouver le code secret.</p>
+                <p class="mt-4">Chaque fois que vous entrez un code, un message vous informe des chiffres bien placés et des chiffres présents mais mal placés dans le code secret.</p>
+                <p class="text-end mt-8">À vous de trouver le code secret !</p>
+            </article>
+            <div class="p-4 m-auto">
+                {{ form_start(form) }}
+                {{ form_row(form.codeLength) }}
+                <button type="submit" class="btn">Démarrer</button>
+                {{ form_end(form) }}
+            </div>
+        </div>
     </section>
 {% endblock %}
