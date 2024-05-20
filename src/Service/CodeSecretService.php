@@ -81,20 +81,39 @@ class CodeSecretService
 
         if (strlen($this->codeEntered) < strlen($this->codeToFind)) { return;}
 
-        $newEntry = '';
+        $newEntry = [];
+        $codeToFindFreq = array_count_values(str_split($this->codeToFind));
+        $codeEnteredFreq = array_count_values(str_split($this->codeEntered));
 
-        for ($i = 0; $i < strlen($this->codeToFind); ++$i) {
+
+        for ($i = 0; $i < strlen($this->codeToFind); $i++) {
             if ($this->codeEntered[$i] === $this->codeToFind[$i]) {
-                $newEntry .= '<span class="green">' . htmlspecialchars($this->codeEntered[$i]) . '</span>';
-                continue;
-            } else if (str_contains($this->codeToFind, $this->codeEntered[$i])) {
-                $newEntry .= '<span class="yellow">' . htmlspecialchars($this->codeEntered[$i]) . '</span>';
-                continue;
+                $newEntry[$i] = '<span class="green">' . htmlspecialchars($this->codeEntered[$i]) . '</span>';
+                $codeEnteredFreq[$this->codeEntered[$i]]--;
+                $codeToFindFreq[$this->codeEntered[$i]]--;
+            } else {
+                $newEntry[$i] = null;
             }
-            $newEntry .= '<span class="null">' . htmlspecialchars($this->codeEntered[$i]) . '</span>';
         }
 
-        $this->journal[] = '[' . date('H:i:s') . ']  ' . '<div class="code">' . $newEntry . '</div>';
+        for ($i = 0; $i < strlen($this->codeToFind); $i++) {
+            if ($newEntry[$i] === null) {
+                if (isset($codeToFindFreq[$this->codeEntered[$i]])
+                    && $codeEnteredFreq[$this->codeEntered[$i]] > 0
+                    && $codeToFindFreq[$this->codeEntered[$i]] > 0
+                    ) {
+                    $newEntry[$i] = '<span class="yellow">' . htmlspecialchars($this->codeEntered[$i]) . '</span>';
+                    $codeEnteredFreq[$this->codeEntered[$i]]--;
+                    $codeToFindFreq[$this->codeEntered[$i]]--;
+                } else {
+                    $newEntry[$i] = '<span class="null">' . htmlspecialchars($this->codeEntered[$i]) . '</span>';
+                }
+            }
+        }
+
+        $newEntryString = implode('', $newEntry);
+
+        $this->journal[] = '[' . date('H:i:s') . ']  ' . '<div class="code">' . $newEntryString . '</div>';
 
         if ($this->codeEntered === $this->codeToFind) {
             $this->finished = true;
