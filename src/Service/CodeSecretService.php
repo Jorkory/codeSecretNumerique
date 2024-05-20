@@ -85,10 +85,14 @@ class CodeSecretService
         $codeToFindFreq = array_count_values(str_split($this->codeToFind));
         $codeEnteredFreq = array_count_values(str_split($this->codeEntered));
 
+        $countGreen = 0;
+        $countYellow = 0;
+
 
         for ($i = 0; $i < strlen($this->codeToFind); $i++) {
             if ($this->codeEntered[$i] === $this->codeToFind[$i]) {
                 $newEntry[$i] = '<span class="green">' . htmlspecialchars($this->codeEntered[$i]) . '</span>';
+                $countGreen++;
                 $codeEnteredFreq[$this->codeEntered[$i]]--;
                 $codeToFindFreq[$this->codeEntered[$i]]--;
             } else {
@@ -103,6 +107,7 @@ class CodeSecretService
                     && $codeToFindFreq[$this->codeEntered[$i]] > 0
                     ) {
                     $newEntry[$i] = '<span class="yellow">' . htmlspecialchars($this->codeEntered[$i]) . '</span>';
+                    $countYellow++;
                     $codeEnteredFreq[$this->codeEntered[$i]]--;
                     $codeToFindFreq[$this->codeEntered[$i]]--;
                 } else {
@@ -111,9 +116,13 @@ class CodeSecretService
             }
         }
 
-        $newEntryString = implode('', $newEntry);
-
-        $this->journal[] = '[' . date('H:i:s') . ']  ' . '<div class="code">' . $newEntryString . '</div>';
+        if ($this->hardDifficulty) {
+            $newEntryHard = '<p class="font-bold">Code saisi : ' . htmlspecialchars($this->codeEntered) . '</p></p><p>Nombre de chiffres corrects et bien placés : <span class="font-bold">' . $countGreen . '</span></p><p>Nombre de chiffres corrects mais mal placés : <span class="font-bold">' . $countYellow . '</span></p>';
+            $this->journal[] = '[' . date('H:i:s') . ']  ' . '<div class="code">' . $newEntryHard . '</div>';
+        } else {
+            $newEntryString = implode('', $newEntry);
+            $this->journal[] = '[' . date('H:i:s') . ']  ' . '<div class="code">' . $newEntryString . '</div>';
+        }
 
         if ($this->codeEntered === $this->codeToFind) {
             $this->finished = true;
