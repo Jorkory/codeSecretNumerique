@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 class CodeSecretService
 {
     private sessionInterface $session;
+    private bool $hardDifficulty;
     private string $codeToFind;
     private string $codeEntered = '';
     private array $journal = [];
@@ -21,6 +22,7 @@ class CodeSecretService
         $difficulty = $this->session->get('newGame')['difficulty'];
         $codeLength = $this->session->get('newGame')['codeLength'];
         $newGame = $this->session->get('newGame')['newGame'];
+        $hardDifficulty = $this->session->get('newGame')['difficulty'] === 'hard';
 
         if ($this->session->has('game') && !$newGame) {
             $game = $this->session->get('game');
@@ -28,7 +30,9 @@ class CodeSecretService
             $this->codeEntered = $game['codeEntered'];
             $this->journal = $game['journal'];
             $this->finished = $game['finished'];
+            $this->hardDifficulty = $game['hardDifficulty'];
         } else {
+            $this->hardDifficulty = $hardDifficulty;
             $length = $codeLength ?? random_int(4,9);
             $this->codeToFind = (string) random_int((int) str_repeat(0, $length), (int) str_repeat(9, $length));
             $this->codeToFind = str_pad($this->codeToFind, $length, '0', STR_PAD_LEFT);
@@ -39,7 +43,7 @@ class CodeSecretService
 
     private function save(): void
     {
-        $this->session->set('game', ['codeToFind' => $this->codeToFind, 'codeEntered' => $this->codeEntered, 'journal' => $this->journal, 'finished' => $this->finished]);
+        $this->session->set('game', ['hardDifficulty' => $this->hardDifficulty, 'codeToFind' => $this->codeToFind, 'codeEntered' => $this->codeEntered, 'journal' => $this->journal, 'finished' => $this->finished]);
     }
 
     public function keypadAddNumber(string $key): void

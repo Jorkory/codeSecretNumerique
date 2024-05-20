@@ -19,6 +19,9 @@ class NewGame
     #[ORM\Column(length: 255)]
     private ?string $difficulty = null;
 
+    #[ORM\Column]
+    private bool $newGame = true;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -46,5 +49,26 @@ class NewGame
         $this->difficulty = $difficulty;
 
         return $this;
+    }
+
+    public function isNewGame(): ?bool
+    {
+        return $this->newGame;
+    }
+
+    public function setNewGame(bool $newGame): static
+    {
+        $this->newGame = $newGame;
+
+        return $this;
+    }
+
+    public function getNewGameInfo(): array
+    {
+        $newGameInfo = [];
+        $newGameInfo['codeLength'] = $this->codeLength;
+        $newGameInfo['difficulty'] = $this->difficulty;
+        $newGameInfo['newGame'] = $this->newGame;
+        return $newGameInfo;
     }
 }

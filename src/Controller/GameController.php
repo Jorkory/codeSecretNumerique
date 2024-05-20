@@ -25,9 +25,9 @@ class GameController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $newGame = $request->getSession()->get('newGame');
-            $newGame['newGame'] = true;
-            $request->getSession()->set('newGame', $newGame);
+            $newGameInfo = $request->getSession()->get('newGame');
+            $newGameInfo['newGame'] = true;
+            $request->getSession()->set('newGame', $newGameInfo);
 
             return $this->redirectToRoute('app_game');
         }
