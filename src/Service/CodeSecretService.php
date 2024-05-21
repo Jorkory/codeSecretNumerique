@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class CodeSecretService
@@ -15,9 +16,9 @@ class CodeSecretService
     private bool $finished = false;
 
 
-    public function __construct(Request $request)
+    public function __construct(RequestStack $requestStack)
     {
-        $this->session = $request->getSession();
+        $this->session = $requestStack->getSession();
 
         $difficulty = $this->session->get('newGame')['difficulty'];
         $codeLength = $this->session->get('newGame')['codeLength'];

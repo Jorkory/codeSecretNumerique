@@ -20,22 +20,22 @@ class GameEnterCode
     #[LiveProp]
     public array $codeToDisplay;
 
+    public function __construct(private readonly CodeSecretService $codeSecretService){}
+
     #[LiveAction]
     public function keypadClick(#[LiveArg('number')] string $key, GameDisplay $gameDisplay, Request $request): void
     {
-        $codeSecretService = new CodeSecretService($request);
-
         if ($key === 'C' ) {
-            $codeSecretService->clearCodeEntered();
+            $this->codeSecretService->clearCodeEntered();
         } else if ($key === 'OK') {
-            $codeSecretService->checkCodeEntered();
+            $this->codeSecretService->checkCodeEntered();
             $this->emit('handleKeypadClick', [
-                'journal' => $codeSecretService->getJournal()
+                'journal' => $this->codeSecretService->getJournal()
             ]);
         } else {
-            $codeSecretService->keypadAddNumber($key);
+            $this->codeSecretService->keypadAddNumber($key);
         }
 
-        $this->codeToDisplay = $codeSecretService->getCodeToDisplay();
+        $this->codeToDisplay = $this->codeSecretService->getCodeToDisplay();
     }
 }

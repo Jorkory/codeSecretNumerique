@@ -11,14 +11,16 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class GameController extends AbstractController
 {
+    public function __construct(private readonly CodeSecretService $codeSecretService)
+    {
+    }
+
     #[Route('/game', name: 'app_game', methods: ['GET', 'POST'])]
     public function index(Request $request): Response
     {
         if (!$request->getSession()->has('newGame')) {
             return $this->redirectToRoute('app_main');
         }
-
-        $codeSecretService = new CodeSecretService($request);
 
         $form = $this->createForm(NewGameBtnType::class);
 
@@ -34,9 +36,9 @@ class GameController extends AbstractController
 
         return $this->render('game/index.html.twig', [
             'controller_name' => 'GameController',
-            'codeToFind' => $codeSecretService->getCodeToFind(),
-            'codeToDisplay' => $codeSecretService->getCodeToDisplay(),
-            'journal' => $codeSecretService->getJournal(),
+            'codeToFind' => $this->codeSecretService->getCodeToFind(),
+            'codeToDisplay' => $this->codeSecretService->getCodeToDisplay(),
+            'journal' => $this->codeSecretService->getJournal(),
 
             'form' => $form->createView(),
         ]);
