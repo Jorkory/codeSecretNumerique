@@ -2,13 +2,18 @@
 
 namespace App\Service;
 
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class CodeSecretService
 {
     private sessionInterface $session;
+
+    private string $userID;
+    private string $gameID;
+    private string $state;
+    private array $players = [];
+    private string $currentPlayer = '';
     private bool $hardDifficulty;
     private string $codeToFind;
     private string $codeEntered = '';
@@ -16,40 +21,145 @@ class CodeSecretService
     private bool $finished = false;
 
 
-    public function __construct(RequestStack $requestStack)
+    public function __construct(RequestStack $requestStack, private GameSessionService $gameSession)
     {
         $this->session = $requestStack->getSession();
+        (bool) $newGame = $this->session->get('newGame')['newGame'];
 
-        $difficulty = $this->session->get('newGame')['difficulty'];
-        $codeLength = $this->session->get('newGame')['codeLength'];
-        $newGame = $this->session->get('newGame')['newGame'];
-        $hardDifficulty = $this->session->get('newGame')['difficulty'] === 'hard';
+
+        if ($this->session->has('userID')) {
+            $this->userID = $this->session->get('userID');
+        } else {
+            $this->createUserID();
+        }
 
         if ($this->session->has('game') && !$newGame) {
-            $game = $this->session->get('game');
-            $this->codeToFind = $game['codeToFind'];
-            $this->codeEntered = $game['codeEntered'];
-            $this->journal = $game['journal'];
-            $this->finished = $game['finished'];
-            $this->hardDifficulty = $game['hardDifficulty'];
+            $this->gameID = $this->session->get('game');
+            $this->getGame();
         } else {
-            $this->hardDifficulty = $hardDifficulty;
-            $length = $codeLength ?? random_int(4,9);
-            $this->codeToFind = (string) random_int((int) str_repeat(0, $length), (int) str_repeat(9, $length));
-            $this->codeToFind = str_pad($this->codeToFind, $length, '0', STR_PAD_LEFT);
-            $this->save();
-            $this->session->set('newGame', ['newGame' => false, 'difficulty' => $difficulty ,'codeLength' => $codeLength]);
+            $joinGameID = $this->session->get('newGame')['joinGame'];
+            if (!empty($joinGameID)) {
+                $this->joinGame($joinGameID);
+            } else {
+                $this->createGame();
+            }
+
+        }
+    }
+
+    private function generateCode(): string
+    {
+        $codeLength = $this->session->get('newGame')['codeLength'];
+        $length = $codeLength ?? random_int(4,9);
+        $codeToFind = (string) random_int((int) str_repeat(0, $length), (int) str_repeat(9, $length));
+        return str_pad($codeToFind, $length, '0', STR_PAD_LEFT);
+    }
+
+    private function createUserID(): void
+    {
+        $this->userID = uniqid('user_', true);
+        $this->session->set('userID', $this->userID);
+    }
+
+    private function createGame(): void
+    {
+        $this->gameID = $this->gameSession->generateGameId();
+        $this->state = $this->session->get('newGame')['mode'] === 'multiplayer' ? 'open' : 'inProgress';
+        $this->players[] = $this->userID;
+        $this->hardDifficulty = $this->session->get('newGame')['difficulty'] === 'hard';
+        $this->codeToFind = $this->generateCode();
+        $this->journal[] = '<p>Identifiant de la partie : <span class="font-bold">' . $this->gameID . '</span></p>';
+        $this->journal[] = '<p>En attente des autres joueurs... (1 sur 4 joueurs connectés)</p>';
+
+
+        $this->save();
+
+        $this->session->set('game', $this->gameID);
+
+        $newGame = $this->session->get('newGame');
+        $newGame['newGame'] = false;
+        $this->session->set('newGame', $newGame);
+
+        if ($this->state === 'open') {
+            $this->gameSession->addRoomPublic($this->gameID);
+        }
+    }
+
+    public function joinGame(string $gameID)
+    {
+        if ($gameID === "fast") {
+            $gameID = $this->gameSession->findRoomPublic()[0];
+        }
+            $gameData = $this->gameSession->getGameData($gameID);
+
+        if ($gameData['state'] === 'open') {
+            $newGame = $this->session->get('newGame');
+            $newGame['joinGame'] = '';
+            $newGame['newGame'] = false;
+            $this->session->set('newGame', $newGame);
+
+            $this->gameID = $gameID;
+            $this->getGame();
+            if (!in_array($this->userID, $this->players, true)) {
+                $this->players[] = $this->userID;
+            };
+
+            if (count($this->players) === 4 ) {
+                $this->state = 'clos';
+            }
+
+            $this->journal[] = '<p>Un(e) joueur(se) vient d\'arriver ! (' . count($this->players) . ' sur 4 joueurs connectés)</p>';
+
+        } else {
+            throw new \Exception("La partie n'est pas disponible, veuillez réessayer.");
+        }
+
+        $this->save();
+
+        $this->session->set('game', $this->gameID);
+    }
+
+    private function getGame(): void
+    {
+        $game = $this->gameSession->getGameData($this->gameID);
+
+        foreach ($game as $key => $value) {
+            $this->$key = $value;
         }
     }
 
     private function save(): void
     {
-        $this->session->set('game', ['hardDifficulty' => $this->hardDifficulty, 'codeToFind' => $this->codeToFind, 'codeEntered' => $this->codeEntered, 'journal' => $this->journal, 'finished' => $this->finished]);
+        $game = [
+            'state' => $this->state,
+            'players' => $this->players,
+            'currentPlayer' => $this->currentPlayer,
+            'hardDifficulty' => $this->hardDifficulty,
+            'codeToFind' => $this->codeToFind,
+            'codeEntered' => $this->codeEntered,
+            'journal' => $this->journal,
+        ];
+
+        $this->gameSession->updateGameData($this->gameID, $game);
+    }
+
+    public function startGame(): void
+    {
+        if ($this->players[0] === $this->userID){
+            $this->state = 'inProgress';
+            $this->gameSession->deleteGameData($this->gameID);
+            if (count($this->players) > 1) {
+                shuffle($this->players);
+                $this->currentPlayer = $this->players[0];
+            }
+
+            $this->save();
+        }
     }
 
     public function keypadAddNumber(string $key): void
     {
-        if ($this->finished) {return;}
+        if ($this->finished || $this->state !== 'inProgress' || $this->userID !== $this->currentPlayer) {return;}
 
         if(strlen($this->codeEntered) >= strlen($this->codeToFind) || !preg_match('/^[0-9]$/', $key)) {
             return;
@@ -130,12 +240,46 @@ class CodeSecretService
             $this->journal[] = '<div class="win"> Bravo, vous avez trouvé le code secret ! </div>';
         }
 
+        $this->nextPlayer();
+
         $this->save();
         $this->clearCodeEntered();
     }
 
     public function getJournal(): array
     {
+        if (($this->state === 'open' || $this->state === 'private') && $this->players[0] === $this->userID) {
+            $this->journal[] = '<a href="/game?start=true" class="btn">Démarrer</a>';
+        }
+
+        if ($this->state === 'inProgress') {
+            if ($this->getCurrentPlayer() === 'you') {
+                $this->journal[] = '<p class="font-bold">À vous de jouer !</p>';
+            } else {
+                $this->journal[] = '<p class="font-bold">Patientez, l\'autre joueur est en train de faire son tour.</p>';
+            }
+        }
         return $this->journal;
+    }
+
+    private function nextPlayer(): void
+    {
+        $currentIndex = array_search($this->currentPlayer, $this->players);
+
+        if ($currentIndex === false) {
+            throw new \Exception("Current player not found in players array");
+        }
+
+        $nextIndex = ($currentIndex + 1) % count($this->players);
+        $this->currentPlayer = $this->players[$nextIndex];
+    }
+
+    public function getCurrentPlayer(): string
+    {
+        if ($this->currentPlayer === $this->userID) {
+            return "you";
+        };
+
+        return '';
     }
 }

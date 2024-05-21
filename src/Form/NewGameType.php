@@ -4,6 +4,7 @@ namespace App\Form;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -12,6 +13,12 @@ class NewGameType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
+            ->add('mode', ChoiceType::class, [
+                'choices' => [
+                    'Seul joueur' => 'player',
+                    'Multijoueur (en ligne)' => 'multiplayer',
+                ],
+            ])
             ->add('difficulty', ChoiceType::class, [
                 'choices' => [
                     'Normal' => 'normal',
@@ -34,6 +41,9 @@ class NewGameType extends AbstractType
                     '8' => 8,
                     '9' => 9,
                 ],
+            ])
+            ->add('joinGame', TextType::class, [
+                'required' => false,
             ])
         ;
     }

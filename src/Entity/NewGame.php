@@ -22,6 +22,12 @@ class NewGame
     #[ORM\Column]
     private bool $newGame = true;
 
+    #[ORM\Column(length: 255)]
+    private ?string $mode = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $joinGame = '';
+
     public function getId(): ?int
     {
         return $this->id;
@@ -69,6 +75,32 @@ class NewGame
         $newGameInfo['codeLength'] = $this->codeLength;
         $newGameInfo['difficulty'] = $this->difficulty;
         $newGameInfo['newGame'] = $this->newGame;
+        $newGameInfo['mode'] = $this->mode;
+        $newGameInfo['joinGame'] = $this->joinGame;
         return $newGameInfo;
+    }
+
+    public function getMode(): ?string
+    {
+        return $this->mode;
+    }
+
+    public function setMode(string $mode): static
+    {
+        $this->mode = $mode;
+
+        return $this;
+    }
+
+    public function getJoinGame(): ?string
+    {
+        return $this->joinGame;
+    }
+
+    public function setJoinGame(?string $joinGame): static
+    {
+        $this->joinGame = $joinGame;
+
+        return $this;
     }
 }

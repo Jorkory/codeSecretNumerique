@@ -145,6 +145,7 @@
       <path value="$PROJECT_DIR$/vendor/symfony/ux-twig-component" />
       <path value="$PROJECT_DIR$/vendor/symfony/ux-live-component" />
       <path value="$PROJECT_DIR$/vendor/symfony/ux-icons" />
+      <path value="$PROJECT_DIR$/vendor/snc/redis-bundle" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="8.2" />
