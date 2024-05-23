@@ -44,25 +44,25 @@ class GameSessionService
         $cacheItem = $this->cache->deleteItem($gameId);
     }
 
-    public function addRoomPublic(string $gameId): void
+    public function addRoom(string $gameId, bool $isPrivate): void
     {
-        $cacheItem = $this->cache->getItem('roomPublic');
+        $cacheItem = $this->cache->getItem($isPrivate ? 'roomPrivate' : 'roomPublic');
         $array = $cacheItem->get();
         $array[] = $gameId;
         $cacheItem->set($array);
         $this->cache->save($cacheItem);
     }
 
-    public function findRoomPublic(): array
+    public function findRoom($isPrivate): array
     {
-        $cacheItem = $this->cache->getItem('roomPublic');
+        $cacheItem = $this->cache->getItem($isPrivate ? 'roomPrivate' : 'roomPublic');
         return $cacheItem->get() ?? [];
     }
 
-    public function deleteRoomPublic(string $gameId): void
+    public function deleteRoom(string $gameId, $isPrivate): void
     {
         $cacheItem = $this->cache->getItem('roomPublic');
-        $array = $cacheItem->get();
+        $array = $cacheItem->get() ?? [];
         $key = array_search($gameId, $array);
         if ($key !== false) {
             unset($array[$key]);

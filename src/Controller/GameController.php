@@ -43,7 +43,7 @@ class GameController extends AbstractController
             'controller_name' => 'GameController',
             'codeToFind' => $this->codeSecretService->getCodeToFind(),
             'codeToDisplay' => $this->codeSecretService->getCodeToDisplay(),
-            'journal' => $this->codeSecretService->getJournal(),
+            'journal' => [],
 
             'form' => $form->createView(),
         ]);
