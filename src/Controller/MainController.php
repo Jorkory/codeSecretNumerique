@@ -14,6 +14,18 @@ class MainController extends AbstractController
     #[Route('/', name: 'app_main', methods: ['GET', 'POST'])]
     public function index(Request $request): Response
     {
+        if ($request->query->has('fast')) {
+            if ($request->get('fast') == 'true') {
+                $newGame = new NewGame();
+                $newGame->setDifficulty('normal');
+                $newGame->setMode('multiplayer');
+                $newGame->setJoinGame('fast');
+                $request->getSession()->set('newGame', $newGame->getNewGameInfo());
+
+                return $this->redirectToRoute('app_game');
+
+            }
+        }
         $finished = $request->getSession()->get('game')['finished'] ?? true;
 
         $newGame = new NewGame();

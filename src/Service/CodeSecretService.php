@@ -108,8 +108,7 @@ class CodeSecretService
             $gameID = reset($arrayRoom) ?? null;
 
             if (!$gameID) {
-                $this->createGame();
-                return;
+                throw new \Exception("Aucune partie en ligne n'a été trouvée. Vous pouvez créer une partie multijoueur !");
             }
         }
 

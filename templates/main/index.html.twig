@@ -26,11 +26,25 @@
                     <p class="mt-2">À chaque tentative, vous recevrez un seul nombre qui représente les chiffres correctement placés, suivi d'un autre nombre représentant les chiffres présents mais mal placés.</p>
                     <p class="text-end mt-8">À vous de trouver le code secret !</p>
                 </article>
-                <div class="p-4 m-auto bg-gray-50 rounded">
+                <div class="p-4 m-auto bg-gray-50 rounded w-[400px]">
                     <h2 class="text-center text-xl mb-4 font-bold">Nouvelle partie</h2>
                     {{ form_start(form) }}
-                    {{ form_row(form.difficulty, {label: 'Difficulté :', label_class: 'underline'}) }}
-                    {{ form_row(form.codeLength, {label: 'Longueur du code :', widget_class: 'm-2', label_class: 'underline'}) }}
+                    <fieldset class="border-2 border-gray-700 rounded p-4 pt-2 mt-4">
+                        <legend class="bg-gray-700 text-white py-1 px-2 rounded">Créer une partie</legend>
+                        <small class="block text-center">(Mode)</small>
+                        {{ form_row(form.mode, {label_class: "hidden", attr: {class: 'inline-radio'} }) }}
+                        <small class="block text-center">(Multijoueur uniquement)</small>
+                        {{ form_row(form.private, {label_class: 'hidden', attr: {class: 'inline-radio'} }) }}
+                        <small class="block text-center">(Difficulté)</small>
+                        {{ form_row(form.difficulty, {label_class: "hidden", attr: {class: 'inline-radio'}}) }}
+                        {{ form_row(form.codeLength, {label: 'Longueur du code Secret:', widget_class: 'm-2', label_class: 'underline'}) }}
+                    </fieldset>
+                    <fieldset class="border-2 border-gray-700 rounded p-4 mt-5">
+                        <legend class="bg-gray-700 text-white py-1 px-2 rounded">Rejoindre une partie <small>(en ligne)</small></legend>
+                        <a class="btn w-full text-center" href="?fast=true">Trouver une partie <small>(Public)</small></a>
+                        <p class="mt-4">Ou chercher une partie avec l'identifiant :</p>
+                        {{ form_row(form.joinGame, { label_class:'hidden' }) }}
+                    </fieldset>
                     <div class="w-full flex justify-center">
                         <button type="submit" class="btn shadow-custom mt-4">Démarrer</button>
                     </div>

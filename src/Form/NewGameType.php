@@ -16,8 +16,11 @@ class NewGameType extends AbstractType
             ->add('mode', ChoiceType::class, [
                 'choices' => [
                     'Seul joueur' => 'player',
-                    'Multijoueur (en ligne)' => 'multiplayer',
+                    'Multijoueur' => 'multiplayer',
                 ],
+                'expanded' => true,
+                'multiple' => false,
+                'data' => 'player',
             ])
             ->add('difficulty', ChoiceType::class, [
                 'choices' => [
@@ -53,6 +56,9 @@ class NewGameType extends AbstractType
             ])
             ->add('joinGame', TextType::class, [
                 'required' => false,
+                'attr' => [
+                    'placeholder' => 'Identifiant'
+                ]
             ])
         ;
     }
