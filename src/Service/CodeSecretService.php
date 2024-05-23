@@ -10,6 +10,7 @@ class CodeSecretService
     private sessionInterface $session;
 
     private string $state;
+    private array $lastActive = [];
     private array $players = [];
     private string $currentPlayer = '';
     private bool $hardDifficulty;
@@ -61,6 +62,7 @@ class CodeSecretService
     {
         $game = [
             'state' => $this->state,
+            'lastActive' => $this->lastActive,
             'players' => $this->players,
             'currentPlayer' => $this->currentPlayer,
             'hardDifficulty' => $this->hardDifficulty,
@@ -79,6 +81,7 @@ class CodeSecretService
         $this->userGame->joinedGame($this->gameSession->generateGameId());
 
         $this->state = 'open';
+        $this->lastActive[$this->userGame->userID] = time();
         $this->players[] = $this->userGame->userID;
         $this->hardDifficulty = $this->userGame->difficulty === 'hard';
         $this->codeToFind = $this->generateCode();
@@ -116,7 +119,7 @@ class CodeSecretService
             $this->userGame->joinedGame($gameID);
 
             $this->getGame();
-
+            $this->lastActive[$this->userGame->userID] = time();
             if (!in_array($this->userGame->userID, $this->players, true)) {
                 $this->players[] = $this->userGame->userID;
                 $this->journal[] = '<p>Un joueur vient d\'arriver ! (' . count($this->players) . ' sur 4 joueurs connectés)</p>';
@@ -279,6 +282,7 @@ class CodeSecretService
     public function getJournal(): array
     {
         if ($this->state === 'open') {
+            $this->checkRoom();
             if ($this->userGame->userID === $this->players[0]) {
                 $this->journal[] = '<p>Vous êtes l\'hôte ! Démarrez la partie à tout moment, sans attendre d\'autres joueurs. <a href="/game?start=true" class="btn">Commencez maintenant</a></p>';
             } else {
@@ -303,6 +307,26 @@ class CodeSecretService
         }
 
         return $this->journal;
+    }
+
+    private function checkRoom(): void
+    {
+        $currentTime = time();
+        $this->lastActive[$this->userGame->userID] = $currentTime;
+
+        foreach ($this->lastActive as $key => $value) {
+            if ($currentTime - $value >= 3) {
+                $currentIndex = array_search($key, $this->players, true);
+                if ($currentIndex !== false) {
+                    unset($this->players[$currentIndex]);
+                    unset($this->lastActive[$key]);
+                    $this->journal[] = '<p>Un joueur quitte. (' . count($this->players) . ' sur 4 joueurs connectés)</p>';
+                }
+            }
+        }
+
+        $this->players = array_values($this->players);
+        $this->save();
     }
 
     private function nextPlayer(): void
