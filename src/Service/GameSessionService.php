@@ -16,32 +16,18 @@ class GameSessionService
         return substr($hex, 0, 8);
     }
 
-    public function startNewGame(string $gameId, array $gameData): void
-    {
-        $cacheItem = $this->cache->getItem($gameId);
-        $cacheItem->set($gameData);
-        $this->cache->save($cacheItem);
-    }
-
     public function getGameData(string $gameId): ?array
     {
         $cacheItem = $this->cache->getItem($gameId);
-//        if ($cacheItem->isHit()) {
-//            return null;
-//        }
         return $cacheItem->get();
     }
 
-    public function updateGameData(string $gameId, array $gameData): void
+    public function updateGameData(string $gameId, array $gameData, int $ttl = 600): void
     {
         $cacheItem = $this->cache->getItem($gameId);
         $cacheItem->set($gameData);
+        $cacheItem->expiresAfter($ttl);
         $this->cache->save($cacheItem);
-    }
-
-    public function deleteGameData(string $gameId): void
-    {
-        $cacheItem = $this->cache->deleteItem($gameId);
     }
 
     public function addRoom(string $gameId, bool $isPrivate): void
@@ -61,7 +47,7 @@ class GameSessionService
 
     public function deleteRoom(string $gameId, $isPrivate): void
     {
-        $cacheItem = $this->cache->getItem('roomPublic');
+        $cacheItem = $this->cache->getItem($isPrivate ? 'roomPrivate' : 'roomPublic');
         $array = $cacheItem->get() ?? [];
         $key = array_search($gameId, $array);
         if ($key !== false) {
