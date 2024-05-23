@@ -115,6 +115,28 @@ class CodeSecretService
 
         $gameData = $this->gameSession->getGameData($gameID) ?? null;
 
+        if ($this->userGame->askToJoinGame() === "fast") {
+            if (!$gameData) {
+                $this->gameSession->deleteRoom($gameID, false);
+                $this->joinGame();
+                return;
+            } else  {
+                $active = false;
+                $time = time();
+                foreach ($gameData['lastActive'] as $key => $value) {
+                    if ($time - $value <= 5) {
+                        $active = true;
+                    }
+                }
+                if (!$active) {
+                    $this->gameSession->deleteRoom($gameID, false);
+                    $this->gameSession->deleteGameData($gameID);
+                    $this->joinGame();
+                    return;
+                }
+            }
+        }
+
         if ($gameData && $gameData['state'] === 'open') {
             $this->userGame->joinedGame($gameID);
 

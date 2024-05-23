@@ -30,6 +30,11 @@ class GameSessionService
         $this->cache->save($cacheItem);
     }
 
+    public function deleteGameData(string $gameId): void
+    {
+        $cacheItem = $this->cache->deleteItem($gameId);
+    }
+
     public function addRoom(string $gameId, bool $isPrivate): void
     {
         $cacheItem = $this->cache->getItem($isPrivate ? 'roomPrivate' : 'roomPublic');
