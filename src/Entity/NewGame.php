@@ -28,6 +28,9 @@ class NewGame
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $joinGame = '';
 
+    #[ORM\Column(length: 255)]
+    private ?string $private = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -77,6 +80,7 @@ class NewGame
         $newGameInfo['newGame'] = $this->newGame;
         $newGameInfo['mode'] = $this->mode;
         $newGameInfo['joinGame'] = $this->joinGame;
+        $newGameInfo['private'] = $this->private === 'private';
         return $newGameInfo;
     }
 
@@ -100,6 +104,18 @@ class NewGame
     public function setJoinGame(?string $joinGame): static
     {
         $this->joinGame = $joinGame;
+
+        return $this;
+    }
+
+    public function getPrivate(): ?string
+    {
+        return $this->private;
+    }
+
+    public function setPrivate(string $private): static
+    {
+        $this->private = $private;
 
         return $this;
     }

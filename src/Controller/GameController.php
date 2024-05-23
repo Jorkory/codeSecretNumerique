@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use App\Form\NewGameBtnType;
 use App\Service\CodeSecretService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -27,25 +26,11 @@ class GameController extends AbstractController
             return $this->redirectToRoute('app_game');
         }
 
-        $form = $this->createForm(NewGameBtnType::class);
-
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $newGameInfo = $request->getSession()->get('newGame');
-            $newGameInfo['newGame'] = true;
-            $request->getSession()->set('newGame', $newGameInfo);
-
-            return $this->redirectToRoute('app_game');
-        }
-
         return $this->render('game/index.html.twig', [
             'controller_name' => 'GameController',
             'codeToFind' => $this->codeSecretService->getCodeToFind(),
             'codeToDisplay' => $this->codeSecretService->getCodeToDisplay(),
             'journal' => [],
-
-            'form' => $form->createView(),
         ]);
     }
 }

@@ -42,6 +42,15 @@ class NewGameType extends AbstractType
                     '9' => 9,
                 ],
             ])
+            ->add('private', ChoiceType::class, [
+                'choices' => [
+                    'Public' => 'public',
+                    'Privée' => 'private',
+                ],
+                'expanded' => true,
+                'multiple' => false,
+                'data' => 'public'
+            ])
             ->add('joinGame', TextType::class, [
                 'required' => false,
             ])

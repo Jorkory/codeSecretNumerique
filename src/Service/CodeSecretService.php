@@ -25,7 +25,7 @@ class CodeSecretService
     {
         $this->session = $requestStack->getSession();
 
-        if ($this->userGame->hasGame()) {
+        if ($this->userGame->hasGame() && $this->userGame->newGame === false) {
             $this->getGame();
         } else {
             if ($this->userGame->askToJoinGame()) {
@@ -88,9 +88,9 @@ class CodeSecretService
             return;
         }
 
-        $this->gameSession->addRoom($this->userGame->gameID, $this->userGame->isPrivate);
+        $this->gameSession->addRoom($this->userGame->gameID, $this->userGame->isPrivate());
 
-        $this->journal[] = '<p>Identifiant de la partie : <span class="font-bold">' . $this->userGame->gameID . '</span></p>';
+        $this->journal[] = '<p>[Partie '. ($this->userGame->isPrivate() ? "Privée" : "Public") .' – Difficulté ' . ($this->userGame->difficulty === 'hard' ? 'Difficile' : 'Normal') . ']<br/>Identifiant de la partie : <span class="font-bold">' . $this->userGame->gameID . '</span> (Partagez-le avec vos amis pour qu\'ils puissent rejoindre cette partie)</p>';
         $this->journal[] = '<p>En attente des autres joueurs... (1 sur 4 joueurs connectés)</p>';
 
         $this->save();
@@ -119,7 +119,7 @@ class CodeSecretService
 
             if (!in_array($this->userGame->userID, $this->players, true)) {
                 $this->players[] = $this->userGame->userID;
-                $this->journal[] = '<p>Un(e) joueur(se) vient d\'arriver ! (' . count($this->players) . ' sur 4 joueurs connectés)</p>';
+                $this->journal[] = '<p>Un joueur vient d\'arriver ! (' . count($this->players) . ' sur 4 joueurs connectés)</p>';
             };
 
             if (count($this->players) === 4 ) {
@@ -145,7 +145,7 @@ class CodeSecretService
         }
 
         $this->state = 'inProgress';
-        $this->gameSession->deleteRoom($this->userGame->gameID, $this->userGame->isPrivate);
+        $this->gameSession->deleteRoom($this->userGame->gameID, $this->userGame->private);
         if (count($this->players) > 1) {
             shuffle($this->players);
             $this->currentPlayer = $this->players[0];
@@ -155,7 +155,7 @@ class CodeSecretService
             if ($this->userGame->isSolo()) {
                 $this->journal[] = '<p>C\'est parti ! Trouvez le code secret !</p>';
             } else {
-                $this->journal[] = '<p>Vous êtes le seul joueur pour cette partie. Bonne chance et trouvez le code secret !</p>';
+                $this->journal[] = '<p>Vous êtes le seul joueur pour cette partie. Bonne chance !</p>';
             }
         } else {
             $this->journal[] = '<p>La partie commence. Bonne chance à tous !</p>';
@@ -285,16 +285,20 @@ class CodeSecretService
                 $this->journal[] = '<p>Veuillez patienter pour l\'arrivée des autres joueurs, ou jusqu\'à ce que l\'hôte lance la partie.</p>';
             }
         }
-        if ($this->state === 'inProgress' && count($this->players) > 1) {
-            if ($this->time < time()) {
-                $this->journal[] = '<p>Le joueur a passé son tour (le temps est écoulé !)</p>';
-                $this->penaltyPlayer();
-                $this->save();
-            }
-            if ($this->isCurrentPlayer()) {
-                $this->journal[] ='<p class="font-bold">À vous de jouer ! (Vous avez '. $this->time - time() .' seconde' . ($this->time - time() > 1 ? 's' : '') . '.)</p>';
-            } else {
-                $this->journal[] = '<p class="font-bold">Patientez, l\'autre joueur est en train de faire son tour.</p>';
+        if ($this->state === 'inProgress') {
+            if (count($this->players) > 1) {
+                if ($this->time < time()) {
+                    $this->journal[] = '<p>Le joueur a passé son tour (le temps est écoulé !)</p>';
+                    $this->penaltyPlayer();
+                    $this->save();
+                }
+                if ($this->isCurrentPlayer()) {
+                    $this->journal[] = '<p class="font-bold">À vous de jouer ! (Vous avez ' . $this->time - time() . ' seconde' . ($this->time - time() > 1 ? 's' : '') . '.)</p>';
+                } else {
+                    $this->journal[] = '<p class="font-bold">Patientez, l\'autre joueur est en train de faire son tour.</p>';
+                }
+            } else if (!in_array($this->userGame->userID, $this->players, true)) {
+                throw new \Exception('Vous avez été exclu pour avoir dépassé le temps imparti à deux reprises.');
             }
         }
 

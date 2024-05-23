@@ -9,7 +9,7 @@ class UserGameService
     private $session;
     public string $userID;
     public ?string $gameID;
-    public bool $isPrivate = true;
+    public ?bool $private = null;
     private ?int $codeLength;
     public string $difficulty;
     public bool $newGame;
@@ -45,6 +45,7 @@ class UserGameService
             'newGame' => $this->newGame,
             'mode' => $this->mode,
             'joinGame' => $this->joinGame,
+
         ];
 
         $this->session->set('newGame', $arrayToSave);
@@ -66,7 +67,7 @@ class UserGameService
 
     public function isSolo(): bool
     {
-        if ($this->mode === 'player' || !$this->joinGame === 'fast') {
+        if ($this->mode === 'player' && $this->joinGame !== 'fast') {
             return true;
         }
         return false;
@@ -83,11 +84,19 @@ class UserGameService
 
     public function joinedGame(string $id): void
     {
-        $this->joinGame = '';
+        $this->joinGame = $this->joinGame !== 'fast' ? '' : $this->joinGame;
         $this->newGame = false;
         $this->save();
 
         $this->gameID = $id;
         $this->session->set('gameID', $this->gameID);
+    }
+
+    public function isPrivate(): bool
+    {
+        if ($this->private === false || $this->joinGame === 'fast') {
+            return false;
+        }
+        return true;
     }
 }
