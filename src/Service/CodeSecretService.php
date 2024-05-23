@@ -145,7 +145,6 @@ class CodeSecretService
                 $this->players[] = $this->userGame->userID;
                 $this->journal[] = '<p>Un joueur vient d\'arriver ! (' . count($this->players) . ' sur 4 joueurs connectés)</p>';
             };
-
             if (count($this->players) === 4 ) {
                 $this->startGame();
                 return;
@@ -164,7 +163,7 @@ class CodeSecretService
 
     public function startGame(): void
     {
-        if ($this->players[0] !== $this->userGame->userID ){
+        if ($this->players[0] !== $this->userGame->userID && (count($this->players) === 4 && $this->players[3] !== $this->userGame->userID)) {
             return;
         }
 
@@ -323,7 +322,9 @@ class CodeSecretService
                 } else {
                     $this->journal[] = '<p class="font-bold">Patientez, l\'autre joueur est en train de faire son tour.</p>';
                 }
-            } else if (!in_array($this->userGame->userID, $this->players, true)) {
+            }
+
+            if (!in_array($this->userGame->userID, $this->players, true)) {
                 throw new \Exception('Vous avez été exclu pour avoir dépassé le temps limite deux fois de suite.');
             }
         }
@@ -360,7 +361,7 @@ class CodeSecretService
         if ($currentIndex === false) {
             throw new \Exception("Aïe, nous avons rencontré un problème.");
         }
-
+        $this->codeEntered = '';
         $nextIndex = ($currentIndex + 1) % count($this->players);
         $this->currentPlayer = $this->players[$nextIndex];
         $this->initializeTime();
