@@ -297,6 +297,7 @@ class CodeSecretService
 
 
         $this->clearCodeEntered();
+        $this->penaltyPlayer(false);
         $this->nextPlayer();
         $this->save();
     }
@@ -324,7 +325,7 @@ class CodeSecretService
                     $this->journal[] = '<p class="font-bold">Patientez, l\'autre joueur est en train de faire son tour.</p>';
                 }
             } else if (!in_array($this->userGame->userID, $this->players, true)) {
-                throw new \Exception('Vous avez été exclu pour avoir dépassé le temps imparti à deux reprises.');
+                throw new \Exception('Vous avez été exclu pour avoir dépassé le temps limite deux fois de suite.');
             }
         }
 
@@ -366,19 +367,28 @@ class CodeSecretService
         $this->initializeTime();
     }
 
-    private function penaltyPlayer(): void
+    private function penaltyPlayer(bool $hit = true): void
     {
-        if (!in_array($this->currentPlayer, $this->penalty)) {
-            $this->penalty[] = $this->currentPlayer;
-            $this->nextPlayer();
-        } else {
-            $index = array_search($this->currentPlayer, $this->players);
-            $this->nextPlayer();
-            if ($index !== false) {
-                unset($this->players[$index]);
-                $this->players = array_values($this->players);
+        if (!$hit) {
+            if (in_array($this->currentPlayer, $this->penalty)) {
+                $currentIndex = array_search($this->currentPlayer, $this->penalty, true);
+                if ($currentIndex !== false) {
+                    unset($this->penalty[$currentIndex]);
+                }
             }
-            $this->journal[] = '<p>Un joueur a été exclu pour avoir dépassé le temps limite deux fois. (Vous êtes maintenant ' . count($this->players) . ' joueur' . (count($this->players) > 1 ? 's' : '') . '.)</p>';
+        } else {
+            if (!in_array($this->currentPlayer, $this->penalty)) {
+                $this->penalty[] = $this->currentPlayer;
+                $this->nextPlayer();
+            } else {
+                $index = array_search($this->currentPlayer, $this->players);
+                $this->nextPlayer();
+                if ($index !== false) {
+                    unset($this->players[$index]);
+                    $this->players = array_values($this->players);
+                }
+                $this->journal[] = '<p>Un joueur a été exclu pour avoir dépassé le temps limite deux fois de suite. (Vous êtes maintenant ' . count($this->players) . ' joueur' . (count($this->players) > 1 ? 's' : '') . '.)</p>';
+            }
         }
     }
 
