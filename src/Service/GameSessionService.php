@@ -47,7 +47,7 @@ class GameSessionService
     public function addRoomPublic(string $gameId): void
     {
         $cacheItem = $this->cache->getItem('roomPublic');
-        $array = $cacheItem->get() ?? [];
+        $array = $cacheItem->get();
         $array[] = $gameId;
         $cacheItem->set($array);
         $this->cache->save($cacheItem);
@@ -56,13 +56,13 @@ class GameSessionService
     public function findRoomPublic(): array
     {
         $cacheItem = $this->cache->getItem('roomPublic');
-        return $cacheItem->get();
+        return $cacheItem->get() ?? [];
     }
 
     public function deleteRoomPublic(string $gameId): void
     {
         $cacheItem = $this->cache->getItem('roomPublic');
-        $array = $cacheItem->get() ?? [];
+        $array = $cacheItem->get();
         $key = array_search($gameId, $array);
         if ($key !== false) {
             unset($array[$key]);

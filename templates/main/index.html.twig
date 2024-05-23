@@ -10,6 +10,11 @@
                 <p class="bg-amber-200 text-center py-3 px-5 mt-4 rounded">Vous avez une partie en cours. <a href="{{ path('app_game') }}" class="btn">Reprendre</a></p>
             </div>
         {% endif %}
+        {% for message in app.flashes('info') %}
+            <div class="flex justify-center">
+                <p class="bg-amber-200 text-center py-3 px-5 mt-4 rounded">{{ message }}</p>
+            </div>
+        {% endfor %}
         <section class="m-7 flex p-7 border-solid border-[3px] border-white rounded-xl flex-col">
             <h1 class="text-gray-700 text-2xl">Bienvenue sur le mini-jeu <strong>Code Secret Numérique</strong></h1>
             <div class="flex">
