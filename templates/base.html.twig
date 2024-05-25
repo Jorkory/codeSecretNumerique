@@ -22,7 +22,28 @@
         </main>
         <footer class="bg-gray-700 p-4">
             <p class="text-white font-light text-center">&copy; 2024 Dev by <a href="https://www.linkedin.com/in/jorislamaque" target="_blank" class="underline">Joris Lamaque</a> - Tous droits réservés - Made with Symfony <a href="https://symfony.com" aria-label="Symfony" target="_blank">{{ ux_icon('symfony', {class: 'h-8 inline'}) }}</a></p>
-            <p class="text-center"><a href="{{ path('app_legalNotice') }}" class="text-white">Mentions légales</a></p>
+            <p class="text-center"><a href="{{ path('app_legalNotice') }}" class="text-white font-light">Mentions légales</a></p>
         </footer>
+        <div id="cookie-banner" style="display: none;" class="fixed bg-amber-200 sm:max-w-[500px] rounded p-3 text-sm bottom-0 right-0 sm:right-10 sm:bottom-10" >
+            <p>Nous utilisons des cookies pour assurer le bon fonctionnement du site, comme pour générer des identifiants utilisateur anonymes et gérer les sessions de jeu. Aucune information personnelle n'est collectée via ces cookies.</p>
+            <div class="flex justify-end">
+                <button id="accept-cookies" class="btn">J'accepte</button>
+            </div>
+        </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/3.0.1/js.cookie.min.js"></script>
+        <script>
+            document.getElementById('accept-cookies').addEventListener('click', function() {
+                document.getElementById('cookie-banner').style.display = 'none';
+
+                Cookies.set('cookie_consent', 'true', { expires: 30 });
+            });
+
+            window.addEventListener('load', function() {
+                if (!Cookies.get('cookie_consent')) {
+                    document.getElementById('cookie-banner').style.display = 'block';
+                }
+            });
+        </script>
+
     </body>
 </html>
