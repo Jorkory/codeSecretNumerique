@@ -2,6 +2,7 @@
 <html lang="fr">
     <head>
         <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>{% block title %}Code Secret Numérique{% endblock %}</title>
         <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
         {% block stylesheets %}
@@ -16,7 +17,7 @@
         <header class="bg-gray-700 p-2">
             <div class="w-[240px] m-auto"><a href="{{ path('app_main') }}" aria-label="Code Secret Numérique"> {{ ux_icon('header:logo') }} </a></div>
         </header>
-        <main class="flex-1 flex justify-center items-center">
+        <main id="main" class="flex-1 flex justify-center items-center">
             {% block body %}{% endblock %}
         </main>
         <footer class="bg-gray-700 p-4">
