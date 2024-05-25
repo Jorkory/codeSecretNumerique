@@ -20,6 +20,7 @@ class CodeSecretService
     private int $time = 0;
     private array $penalty = [];
     private bool $finished = false;
+    private array $colorPlayers = [];
 
 
     public function __construct(RequestStack $requestStack, private GameSessionService $gameSession, private UserGameService $userGame)
@@ -71,6 +72,7 @@ class CodeSecretService
             'journal' => $this->journal,
             'time' => $this->time,
             'penalty' => $this->penalty,
+            'colorPlayers' => $this->colorPlayers,
         ];
 
         $this->gameSession->updateGameData($this->userGame->gameID, $game);
@@ -171,8 +173,9 @@ class CodeSecretService
         $this->gameSession->deleteRoom($this->userGame->gameID, $this->userGame->private);
         if (count($this->players) > 1) {
             shuffle($this->players);
-            $this->currentPlayer = $this->players[0];
         }
+        $this->attributeColorPlayer();
+        $this->currentPlayer = $this->players[0];
         $this->journal = [];
         if (count($this->players) === 1) {
             if ($this->userGame->isSolo()) {
@@ -181,6 +184,7 @@ class CodeSecretService
                 $this->journal[] = '<p>Vous êtes le seul joueur pour cette partie. Bonne chance !</p>';
             }
         } else {
+            $this->journal[] = '<p>Voici l\'ordre des joueurs : <span class="flex gap-2">' . $this->getPlayerOrder() . '</span></p>';
             $this->journal[] = '<p>La partie commence. Bonne chance à tous !</p>';
             $this->initializeTime();
         };
@@ -281,22 +285,23 @@ class CodeSecretService
 
         if ($this->hardDifficulty) {
             $newEntryHard = '<p class="font-bold">Code saisi : ' . htmlspecialchars($this->codeEntered) . '</p></p><p>Nombre de chiffres corrects et bien placés : <span class="font-bold">' . $countGreen . '</span></p><p>Nombre de chiffres corrects mais mal placés : <span class="font-bold">' . $countYellow . '</span></p>';
-            $this->journal[] = '[' . date('H:i:s') . ']  ' . '<div class="code">' . $newEntryHard . '</div>';
+            $this->journal[] = '<span>' . $this->getSvgPlayer($this->colorPlayers[$this->currentPlayer]) . ' :</span> ' . '<div class="code">' . $newEntryHard . '</div>';
         } else {
             $newEntryString = implode('', $newEntry);
-            $this->journal[] = '[' . date('H:i:s') . ']  ' . '<div class="code">' . $newEntryString . '</div>';
+            $this->journal[] = '<span>' . $this->getSvgPlayer($this->colorPlayers[$this->currentPlayer]) . ' :</span> ' . '<div class="code">' . $newEntryString . '</div>';
         }
 
         if ($this->codeEntered === $this->codeToFind) {
             $this->state = 'finished';
             $this->finished = true;
-            $this->journal[] = '<div class="win"> Bravo, vous avez trouvé le code secret ! </div>';
         }
 
 
         $this->clearCodeEntered();
         $this->penaltyPlayer(false);
-        $this->nextPlayer();
+        if ($this->state !== 'finished') {
+            $this->nextPlayer();
+        }
         $this->save();
     }
 
@@ -313,20 +318,31 @@ class CodeSecretService
         if ($this->state === 'inProgress') {
             if (count($this->players) > 1) {
                 if ($this->time < time()) {
-                    $this->journal[] = '<p>Le joueur a passé son tour (le temps est écoulé !)</p>';
+                    $this->journal[] = '<p><span>' . $this->getSvgPlayer($this->colorPlayers[$this->currentPlayer]) . '</span> a passé son tour (le temps est écoulé !)</p>';
                     $this->penaltyPlayer();
                     $this->save();
                 }
                 if ($this->isCurrentPlayer()) {
-                    $this->journal[] = '<p class="font-bold">À vous de jouer ! (Vous avez ' . $this->time - time() . ' seconde' . ($this->time - time() > 1 ? 's' : '') . '.)</p>';
+                    $this->journal[] = '<p class="font-bold"><span>[Vous : ' . $this->getSvgPlayer($this->colorPlayers[$this->userGame->userID]) . ' ] </span>À vous de jouer ! (Vous avez ' . $this->time - time() . ' seconde' . ($this->time - time() > 1 ? 's' : '') . '.)</p>';
                 } else {
-                    $this->journal[] = '<p class="font-bold">Patientez, l\'autre joueur est en train de faire son tour.</p>';
+                    $this->journal[] = '<p class="font-bold"><span>[Vous : ' . $this->getSvgPlayer($this->colorPlayers[$this->userGame->userID]) . ' ] </span>Patientez, ' . $this->getSvgPlayer($this->colorPlayers[$this->currentPlayer]) . ' est en train de faire son tour.</p>';
                 }
+            } else {
+                $this->journal[] = '<p class="font-bold"><span>[Vous : ' . $this->getSvgPlayer($this->colorPlayers[$this->userGame->userID]) . ' ] </span>Saisissez le code.</p>';
             }
 
             if (!in_array($this->userGame->userID, $this->players, true)) {
                 throw new \Exception('Vous avez été exclu pour avoir dépassé le temps limite deux fois de suite.');
             }
+        }
+
+        if ($this->state === 'finished') {
+            if ($this->userGame->userID === $this->currentPlayer) {
+                $this->journal[] = '<div class="win"> Bravo, vous avez trouvé le code secret ! </div>';
+            } else {
+                $this->journal[] = '<div class="win"> Dommage, c\'est <span>' . $this->getSvgPlayer($this->colorPlayers[$this->currentPlayer]) . '</span> qui a trouvé le code Secret ! </div>';
+            }
+            $this->journal[] = '<a href="/" class="btn">Quitter cette partie</a>';
         }
 
         return $this->journal;
@@ -382,12 +398,12 @@ class CodeSecretService
                 $this->nextPlayer();
             } else {
                 $index = array_search($this->currentPlayer, $this->players);
+                $this->journal[] = '<p><span>' . $this->getSvgPlayer($this->colorPlayers[$this->currentPlayer]) . '</span>  a été exclu pour avoir dépassé le temps limite deux fois de suite. (Vous êtes maintenant ' . count($this->players)-1 . ' joueur' . (count($this->players)-1 > 1 ? 's' : '') . '.)</p>';
                 $this->nextPlayer();
                 if ($index !== false) {
                     unset($this->players[$index]);
                     $this->players = array_values($this->players);
                 }
-                $this->journal[] = '<p>Un joueur a été exclu pour avoir dépassé le temps limite deux fois de suite. (Vous êtes maintenant ' . count($this->players) . ' joueur' . (count($this->players) > 1 ? 's' : '') . '.)</p>';
             }
         }
     }
@@ -398,5 +414,32 @@ class CodeSecretService
             return true;
         };
         return false;
+    }
+
+    private function attributeColorPlayer(): void
+    {
+        $colors = ["#0067FF", "#FF0000", "#00D700", "#FF7E00", "#B200FF"];
+        foreach ($this->players as $player) {
+            $color = array_rand($colors);
+            $this->colorPlayers[$player] = $colors[$color];
+            unset($colors[$color]);
+        }
+    }
+
+    private function getPlayerOrder() : string
+    {
+        $string = '';
+        foreach ($this->colorPlayers as $color) {
+            $string .= $this->getSvgPlayer($color);
+        }
+
+        return $string;
+    }
+
+    private function getSvgPlayer($color) : string
+    {
+        return '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16" class="inline">
+                    <path fill="' . $color . '" d="M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16m.847-8.145a2.502 2.502 0 1 0-1.694 0C5.471 8.261 4 9.775 4 11c0 .395.145.995 1 .995h6c.855 0 1-.6 1-.995c0-1.224-1.47-2.74-3.153-3.145"/>
+                </svg>';
     }
 }
