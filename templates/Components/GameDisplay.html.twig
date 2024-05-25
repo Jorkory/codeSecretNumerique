@@ -1,6 +1,6 @@
 <div {{ attributes }} class="flex-1" data-poll="delay(1000)|$render">
-        <div class="h-[500px] border-solid border-2 m-5 overflow-y-auto flex flex-col-reverse bg-gray-50">
-                <ul>
+        <div class="h-[500px] border-solid border-2 my-5 sm:m-5 overflow-y-auto lg:flex lg:flex-col-reverse bg-gray-50">
+                <ul class="flex flex-col-reverse lg:flex-col">
                         {% for entry in journal %}
                         <li class="bg-gray-100 odd:bg-gray-50 p-2 border-solid border-t-2">{{ entry|raw }}</li>
                     {% endfor %}
