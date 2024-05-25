@@ -54,8 +54,9 @@ class CodeSecretService
             foreach ($game as $key => $value) {
                 $this->$key = $value;
             }
+        } else {
+            throw new \Exception('Il n\'y a aucun partie en cours.');
         }
-        // else ???
     }
 
     private function save(): void
