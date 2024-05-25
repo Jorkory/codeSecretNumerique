@@ -6,7 +6,7 @@
     <section class="w-full max-w-[1280px] m-7 p-7 border-solid border-[3px] border-white rounded-xl">
         <div class="flex">
             {{ component('GameEnterCode', {'codeToDisplay': codeToDisplay}) }}
-            {{ component('GameDisplay', {'codeToFind' : codeToFind, 'journal' : journal}) }}
+            {{ component('GameDisplay', {'journal' : journal}) }}
         </div>
     </section>
 {% endblock %}

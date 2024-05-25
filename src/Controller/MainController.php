@@ -26,7 +26,6 @@ class MainController extends AbstractController
 
             }
         }
-        $finished = $request->getSession()->get('game')['finished'] ?? true;
 
         $newGame = new NewGame();
         $form = $this->createForm(NewGameType::class, $newGame);
@@ -42,7 +41,6 @@ class MainController extends AbstractController
         return $this->render('main/index.html.twig', [
             'controller_name' => 'MainController',
             'form' => $form->createView(),
-            'finished' => $finished,
         ]);
     }
 }

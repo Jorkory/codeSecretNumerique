@@ -19,7 +19,6 @@ class CodeSecretService
     private array $journal = [];
     private int $time = 0;
     private array $penalty = [];
-    private bool $finished = false;
     private array $colorPlayers = [];
 
 
@@ -227,11 +226,6 @@ class CodeSecretService
         $this->save();
     }
 
-    public function getCodeToFind(): string
-    {
-        return $this->codeToFind;
-    }
-
     public function getCodeToDisplay(): array
     {
         if ($this->canPlay()) {
@@ -293,7 +287,6 @@ class CodeSecretService
 
         if ($this->codeEntered === $this->codeToFind) {
             $this->state = 'finished';
-            $this->finished = true;
         }
 
 
