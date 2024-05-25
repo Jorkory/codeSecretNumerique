@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\NewGameRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Asserts;
 
 #[ORM\Entity(repositoryClass: NewGameRepository::class)]
 class NewGame

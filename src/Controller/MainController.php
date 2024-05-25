@@ -34,7 +34,10 @@ class MainController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $request->getSession()->set('newGame', $newGame->getNewGameInfo());
-
+            $joinGame = $newGame->getJoinGame();
+            if ($joinGame !== null && !preg_match('/^[a-zA-Z0-9]{8}$/', $joinGame)) {
+                throw new \Exception('L\'identifiant doit contenir exactement 8 caractères composés uniquement de lettres sans caractères spéciaux et des chiffres.');
+            }
             return $this->redirectToRoute('app_game');
         }
 

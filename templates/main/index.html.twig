@@ -38,8 +38,9 @@
                     <fieldset class="border-2 border-gray-700 rounded p-4 mt-5">
                         <legend class="bg-gray-700 text-white py-1 px-2 rounded">Rejoindre une partie <small>(en ligne)</small></legend>
                         <a class="btn w-full text-center" href="?fast=true">Trouver une partie <small>(Public)</small></a>
-                        <p class="mt-4">Ou chercher une partie avec l'identifiant :</p>
-                        {{ form_row(form.joinGame, { label_class:'hidden' }) }}
+                        <div class="mt-5">
+                        {{ form_row(form.joinGame, { label:'Ou chercher une partie avec l\'identifiant :' }) }}
+                        </div>
                     </fieldset>
                     <div class="w-full flex justify-center">
                         <button type="submit" class="btn shadow-custom mt-4">Démarrer</button>
