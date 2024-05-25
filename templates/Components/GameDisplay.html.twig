@@ -1,31 +1,6 @@
 <div {{ attributes }} class="flex-1" data-poll="delay(1000)|$render">
         <div class="h-[500px] border-solid border-2 m-5 overflow-y-auto flex flex-col-reverse bg-gray-50">
                 <ul>
-                        <style>
-                                .code {
-                                        display: inline-block;
-                                        border: 1px solid gainsboro;
-                                        border-radius: 5px;
-                                        background-color: white;
-                                        padding: 2px;
-                                }
-                                .green, .yellow, .null {
-                                        display: inline-block;
-                                        width: 30px;
-                                        height: 30px;
-                                        text-align: center;
-                                        padding: 3px;
-                                        color: black;
-                                        margin: 2px;
-                                }
-                                .green {
-                                        background-color: limegreen;
-                                }
-                                .yellow {
-                                        background-color: gold;
-                                        border-radius: 60px;
-                                }
-                        </style>
                         {% for entry in journal %}
                         <li class="bg-gray-100 odd:bg-gray-50 p-2 border-solid border-t-2">{{ entry|raw }}</li>
                     {% endfor %}

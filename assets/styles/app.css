@@ -52,3 +52,30 @@ body {
 .inline-radio input:checked ~ label {
     background-color: #609EAA;
 }
+
+.code {
+    display: inline-block;
+    border: 1px solid gainsboro;
+    border-radius: 5px;
+    background-color: white;
+    padding: 2px;
+}
+
+.green, .yellow, .null {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    padding: 3px;
+    color: black;
+    margin: 2px;
+}
+
+.green {
+    background-color: limegreen;
+}
+
+.yellow {
+    background-color: gold;
+    border-radius: 60px;
+}
