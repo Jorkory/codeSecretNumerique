@@ -20,7 +20,8 @@
             {% block body %}{% endblock %}
         </main>
         <footer class="bg-gray-700 p-4">
-            <p class="text-white font-light text-center">Dev by <a href="https://www.linkedin.com/in/jorislamaque" target="_blank" class="underline">Joris Lamaque</a> - 2024 - Made with Symfony <a href="https://symfony.com" aria-label="Symfony" target="_blank">{{ ux_icon('symfony', {class: 'h-8 inline'}) }}</a></p>
+            <p class="text-white font-light text-center">&copy; 2024 Dev by <a href="https://www.linkedin.com/in/jorislamaque" target="_blank" class="underline">Joris Lamaque</a> - Tous droits réservés - Made with Symfony <a href="https://symfony.com" aria-label="Symfony" target="_blank">{{ ux_icon('symfony', {class: 'h-8 inline'}) }}</a></p>
+            <p class="text-center"><a href="{{ path('app_legalNotice') }}" class="text-white">Mentions légales</a></p>
         </footer>
     </body>
 </html>
