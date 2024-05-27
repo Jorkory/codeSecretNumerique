@@ -31,6 +31,7 @@ class CodeSecretService
         } else {
             if ($this->userGame->askToJoinGame()) {
                 $this->joinGame();
+
             } else {
                 $this->createGame();
             }

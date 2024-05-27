@@ -31,9 +31,12 @@ class UserGameService
         } else {
             $this->gameID = null;
         }
-
-        foreach ($this->session->get('newGame') as $key => $value) {
-            $this->$key = $value;
+        try {
+            foreach ($this->session->get('newGame') as $key => $value) {
+                $this->$key = $value;
+            }
+        } catch (\Exception $exception) {
+            throw new \Exception('Il n\'y a aucun partie en cours.');
         }
     }
 

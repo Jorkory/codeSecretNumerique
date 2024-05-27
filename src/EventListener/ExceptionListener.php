@@ -23,7 +23,14 @@ final class ExceptionListener
     {
         $exception = $event->getThrowable();
 
-        $this->requestStack->getSession()->getFlashBag()->add('info', $exception->getMessage());
+        if (str_starts_with($exception->getMessage(), 'No route')) {
+            $this->requestStack->getSession()->getFlashBag()->add('info', 'La page que vous avez demandée n\'existe pas');
+        } else if (str_starts_with($exception->getMessage(), 'Error rendering "GameDisplay" component: Vous avez été exclu')) {
+                $this->requestStack->getSession()->getFlashBag()->add('info', 'Vous avez été exclu pour avoir dépassé le temps limite deux fois de suite.');
+        }else {
+            $this->requestStack->getSession()->getFlashBag()->add('info', $exception->getMessage());
+        }
+
 
         $response = new RedirectResponse($this->router->generate('app_main'));
         $event->setResponse($response);
